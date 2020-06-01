@@ -56,6 +56,8 @@ class Shapefile {
 	private let mMin: Double
 	private let mMax: Double
 	
+	private var records: [ShapeRecord]
+	
 	init(fileLength: Int, shapeType: ShapeType, xMin: Double, xMax: Double, yMin: Double, yMax: Double, zMin: Double, zMax: Double, mMin: Double, mMax: Double) {
 		
 		self.fileLength = fileLength.bigEndian
@@ -69,6 +71,8 @@ class Shapefile {
 		self.zMax = zMax.littleEndian
 		self.mMin = mMin.littleEndian
 		self.mMax = mMax.littleEndian
+		
+		self.records = []
 	}
 	
 	func getFileLength() -> Int{
@@ -98,5 +102,13 @@ class Shapefile {
 	///Returns (mMin, Max)
 	func getBoundingM() -> (Double, Double) {
 		return (mMin, mMax)
+	}
+	
+	func insert(record: ShapeRecord) {
+		self.records.append(record)
+	}
+	
+	func getRecords() -> [ShapeRecord] {
+		return records
 	}
 }

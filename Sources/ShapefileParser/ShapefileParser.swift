@@ -1,3 +1,7 @@
-struct ShapefileParser {
-    var text = "Hello, World!"
+import Foundation
+
+class ShapefileParser {
+	static func parse(filepath: String) throws -> Shapefile {
+		
+	}
 }
