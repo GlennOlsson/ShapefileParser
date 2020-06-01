@@ -30,8 +30,17 @@ enum ShapeType: Int {
 	}
 }
 
+extension Double {
+	var littleEndian: Double {
+		get {
+			let bitpattern = self.bitPattern.littleEndian
+			return Double(bitPattern: bitpattern)
+		}
+	}
+}
+
 class Shapefile {
-	///Big endian
+	///Big endian, in 16bit words (2 byte, Half `Int`)
 	private let fileLength: Int
 
 	///Little endian
@@ -52,33 +61,42 @@ class Shapefile {
 		self.fileLength = fileLength.bigEndian
 		self.shapeType = shapeType
 		
-		self.xMin = littleEndian(of: xMin)
-		self.xMax = littleEndian(of: xMax)
-		self.yMin = littleEndian(of: yMin)
-		self.yMax = littleEndian(of: yMax)
-		self.zMin = littleEndian(of: zMin)
-		self.zMax = littleEndian(of: zMax)
-		self.mMin = littleEndian(of: mMin)
-		self.mMax = littleEndian(of: mMax)
+		self.xMin = xMin.littleEndian
+		self.xMax = xMax.littleEndian
+		self.yMin = yMin.littleEndian
+		self.yMax = yMax.littleEndian
+		self.zMin = zMin.littleEndian
+		self.zMax = zMax.littleEndian
+		self.mMin = mMin.littleEndian
+		self.mMax = mMax.littleEndian
 	}
 	
-	private func littleEndian(of value: Double) -> Double {
-		let bitpattern = value.bitPattern.littleEndian
-		return Double(bitPattern: bitpattern)
-	}
-	
-	func getFileLength() -> Int{
+	func getFileLength() -> Int{
 		return fileLength
 	}
 	
-	func getShapeType: ShapeType {
+	func getShapeType() -> ShapeType {
 		return shapeType
 	}
 	
 	///Returns (xMin, xMax)
-	func getBoundingX: (Double, Double) {
+	func getBoundingX() -> (Double, Double) {
 		//Assume returned as little endian
 		return (xMin, xMax)
 	}
 	
+	///Returns (yMin, yMax)
+	func getBoundingY() -> (Double, Double) {
+		return (yMin, yMax)
+	}
+	
+	///Returns (zMin, zMax)
+	func getBoundingZ() -> (Double, Double) {
+		return (zMin, zMax)
+	}
+	
+	///Returns (mMin, Max)
+	func getBoundingM() -> (Double, Double) {
+		return (mMin, mMax)
+	}
 }
