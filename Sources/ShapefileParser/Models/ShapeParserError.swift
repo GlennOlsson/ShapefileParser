@@ -7,9 +7,9 @@
 
 import Foundation
 
-enum ShapeParserError: Error {
-	case badShapeType
-	case generalParseError
-	case noSuchFile
-	case badFileCode
+enum ShapeParserError: String, Error {
+	case badShapeType = "Bad shape type"
+	case generalParseError = "General parse error "
+	case noSuchFile = "No file with path"
+	case badFileCode = "Bad file code"
 }

@@ -1,15 +1,22 @@
 import XCTest
+
 @testable import ShapefileParser
 
 final class ShapefileParserTests: XCTestCase {
-    func testExample() {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct
-        // results.
-//		XCTAssertEqual(ShapefileParser(), "Hello, World!")
+    func testSodermalm() {
+		guard let path = Bundle(for: type(of: self)).path(forResource: "Byggnad", ofType: "shp") else {
+			print("No file, bro")
+			return
+		}
+		do {
+			_ = try ShapefileParser.parse(filepath: path)
+		} catch {
+			print("Error! \(error)")
+			assertionFailure()
+		}
     }
 
     static var allTests = [
-        ("testExample", testExample),
+        ("testSodermalm", testSodermalm),
     ]
 }

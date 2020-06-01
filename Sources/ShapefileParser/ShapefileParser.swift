@@ -7,11 +7,11 @@ class ShapefileParser {
 		var intBuffer = [Int32](repeating: 0, count: 9) //Buffer of 9 ints
 		data.getBytes(&intBuffer, range: intRange)
 		
-		let fileCode = intBuffer[0]
+		let fileCode = intBuffer[0].bigEndian
 		guard fileCode == 9994 else { throw ShapeParserError.badFileCode }
 		
-		let fileLength = intBuffer[7].bigEndian
-		let shapeTypeValue = intBuffer[9].littleEndian
+		let fileLength = intBuffer[6].bigEndian
+		let shapeTypeValue = intBuffer[8].littleEndian
 		guard let shapeType = ShapeType.create(shapeTypeValue) else { throw ShapeParserError.badShapeType }
 		
 		let doubleRange = NSRange(location: 36, length: 8 * 8) //8 Doubles with 8 bytes of size
@@ -33,28 +33,29 @@ class ShapefileParser {
 	
 	private static func parseRecords(shapefile: inout Shapefile, filedata: NSData) {
 		var byteIndex = 100 //First header after init header
-		while byteIndex < shapefile.getFileLength() {
+		//The amount of 16bit words (2 bytes). -100 because of header size
+		let upperBound = (shapefile.getFileLength() - 100) * 2
+		while byteIndex < upperBound {
 			let recordHeaderRange = NSRange(location: byteIndex, length: 8) //Record header is 8 bytes
 			var recordHeaderBuffer = [Int32](repeating: 0, count: 2)
-			filedata.getBytes(&recordHeaderBuffer, range: recordHeaderBuffer)
 			
-			let recordNumber = recordHeaderBuffer[0]
-			let recordLength = recordHeaderBuffer[1]
+			let recordNumber = recordHeaderBuffer[0].bigEndian
+			let recordLength = recordHeaderBuffer[1].bigEndian
 			
-			print("Current record; nr: \(recordNumber) of size \(recordLength) words")
-			byteIndex += 8 + (2 * 16) //8 is size of header, 2 * 16 because 16 bit words = 2 bytes
+			byteIndex += 8 + (2 * Int(recordLength)) //8 is size of header, 2 * 16 because 16 bit words = 2 bytes
 		}
 	}
 	
 	static func parse(filepath: String) throws -> Shapefile {
+		print("Begin")
 		guard let data = NSData(contentsOfFile: filepath) else { throw ShapeParserError.noSuchFile }
-		
+		print("Got data")
 		let totalFileLength = data.count
 		
 		var shapefile = try parseHeader(data: data)
-		
-		parseRecords(file: &shapefile)
-		
+		print("Parsed header")
+		parseRecords(shapefile: &shapefile, filedata: data)
+		print("Parsed Records")
 		print("Total length: \(totalFileLength), derrived from file: \(shapefile.getFileLength())")
 		
 		return shapefile

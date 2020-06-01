@@ -76,7 +76,7 @@ class Shapefile {
 	}
 	
 	func getFileLength() -> Int32 {
-		return fileLength
+		return fileLength.bigEndian
 	}
 	
 	func getShapeType() -> ShapeType {
