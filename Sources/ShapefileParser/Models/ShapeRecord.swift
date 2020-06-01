@@ -17,12 +17,12 @@ class ShapeRecord: Hashable {
 	}
 	
 	///Big endian, in 16bit words (2 byte, Half `Int`). Begins at 1
-	private let recordNumber: Int
+	private let recordNumber: Int32
 	
 	///Big endian, in 16bit words (2 byte, Half `Int`)
-	private let recordLength: Int
+	private let recordLength: Int32
 	
-	init(recordNumber: Int, recordLength: Int) {
+	init(recordNumber: Int32, recordLength: Int32) {
 		self.recordNumber = recordNumber.bigEndian
 		self.recordLength = recordLength.bigEndian
 	}

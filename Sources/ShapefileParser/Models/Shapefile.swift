@@ -9,7 +9,7 @@ import Foundation
 
 /// For simplicity, use the static `create()` function. If the init mthod is called, be sure to convert
 /// the integer to little endian first
-enum ShapeType: Int {
+enum ShapeType: Int32 {
 	case null_Shape		= 0
 	case point			= 1
 	case polyLine		= 3
@@ -25,7 +25,7 @@ enum ShapeType: Int {
 	case multiPointM	= 28
 	case multiPatch		= 31
 	
-	static func create(_ value: Int) -> ShapeType? {
+	static func create(_ value: Int32) -> ShapeType? {
 		return ShapeType(rawValue: value.littleEndian)
 	}
 }
@@ -41,7 +41,7 @@ extension Double {
 
 class Shapefile {
 	///Big endian, in 16bit words (2 byte, Half `Int`)
-	private let fileLength: Int
+	private let fileLength: Int32
 
 	///Little endian
 	private let shapeType: ShapeType
@@ -58,7 +58,7 @@ class Shapefile {
 	
 	private var records: [ShapeRecord]
 	
-	init(fileLength: Int, shapeType: ShapeType, xMin: Double, xMax: Double, yMin: Double, yMax: Double, zMin: Double, zMax: Double, mMin: Double, mMax: Double) {
+	init(fileLength: Int32, shapeType: ShapeType, xMin: Double, xMax: Double, yMin: Double, yMax: Double, zMin: Double, zMax: Double, mMin: Double, mMax: Double) {
 		
 		self.fileLength = fileLength.bigEndian
 		self.shapeType = shapeType
@@ -75,7 +75,7 @@ class Shapefile {
 		self.records = []
 	}
 	
-	func getFileLength() -> Int{
+	func getFileLength() -> Int32 {
 		return fileLength
 	}
 	
