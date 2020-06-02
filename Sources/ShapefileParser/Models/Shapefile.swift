@@ -39,27 +39,24 @@ extension Double {
 	}
 }
 
-class Shapefile {
+class ShapefileHeader {
 	///Big endian, in 16bit words (2 byte, Half `Int`)
-	private let fileLength: Int32
+	fileprivate let fileLength: Int32
 
 	///Little endian
-	private let shapeType: ShapeType
+	fileprivate let shapeType: ShapeType
 	
 	///Little endian, all in bounding rectangle
-	private let xMin: Double
-	private let xMax: Double
-	private let yMin: Double
-	private let yMax: Double
-	private let zMin: Double
-	private let zMax: Double
-	private let mMin: Double
-	private let mMax: Double
-	
-	private var records: [ShapeRecord]
+	fileprivate let xMin: Double
+	fileprivate let xMax: Double
+	fileprivate let yMin: Double
+	fileprivate let yMax: Double
+	fileprivate let zMin: Double
+	fileprivate let zMax: Double
+	fileprivate let mMin: Double
+	fileprivate let mMax: Double
 	
 	init(fileLength: Int32, shapeType: ShapeType, xMin: Double, xMax: Double, yMin: Double, yMax: Double, zMin: Double, zMax: Double, mMin: Double, mMax: Double) {
-		
 		self.fileLength = fileLength.bigEndian
 		self.shapeType = shapeType
 		
@@ -71,44 +68,57 @@ class Shapefile {
 		self.zMax = zMax.littleEndian
 		self.mMin = mMin.littleEndian
 		self.mMax = mMax.littleEndian
-		
+	}
+	
+	func getShapeType() -> ShapeType {
+		return self.shapeType
+	}
+}
+
+class Shapefile<Record: ShapeRecord> {
+	
+	private var header: ShapefileHeader
+	private var records: [Record]
+
+	init(header: ShapefileHeader){
+		self.header = header
 		self.records = []
 	}
 	
 	func getFileLength() -> Int32 {
-		return fileLength.bigEndian
+		return header.fileLength.bigEndian
 	}
 	
 	func getShapeType() -> ShapeType {
-		return shapeType
+		return header.shapeType
 	}
 	
 	///Returns (xMin, xMax)
 	func getBoundingX() -> (Double, Double) {
 		//Assume returned as little endian
-		return (xMin, xMax)
+		return (header.xMin, header.xMax)
 	}
 	
 	///Returns (yMin, yMax)
 	func getBoundingY() -> (Double, Double) {
-		return (yMin, yMax)
+		return (header.yMin, header.yMax)
 	}
 	
 	///Returns (zMin, zMax)
 	func getBoundingZ() -> (Double, Double) {
-		return (zMin, zMax)
+		return (header.zMin, header.zMax)
 	}
 	
 	///Returns (mMin, Max)
 	func getBoundingM() -> (Double, Double) {
-		return (mMin, mMax)
+		return (header.mMin, header.mMax)
 	}
 	
-	func insert(record: ShapeRecord) {
+	func insert(record: Record) {
 		self.records.append(record)
 	}
 	
-	func getRecords() -> [ShapeRecord] {
+	func getRecords() -> [Record] {
 		return records
 	}
 }
