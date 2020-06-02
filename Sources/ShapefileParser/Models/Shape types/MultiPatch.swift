@@ -8,6 +8,11 @@
 import Foundation
 
 class MultiPatch: ShapeRecord {
+	static func parse<Record>(data: NSData, offset: Int) -> Record where Record : ShapeRecord {
+		return MultiPatch(recordNumber: 9, recordLength: 9, xMin: 9, xMax: 9, yMin: 9, yMax: 9, zMin: 9, zMax: 9, mMin: 9, mMax: 9, points: [], zArray: [], mArray: []) as! Record
+	}
+	
+	
 	var recordNumber: Int32
 	
 	var recordLength: Int32
@@ -46,4 +51,5 @@ class MultiPatch: ShapeRecord {
 		self.zArray = zArray
 		self.mArray = mArray
 	}
+
 }

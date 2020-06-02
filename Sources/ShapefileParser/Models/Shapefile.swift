@@ -85,6 +85,10 @@ class Shapefile<Record: ShapeRecord> {
 		self.records = []
 	}
 	
+	func parseRecord(data: NSData, offset: Int) -> Record {
+		return Record.parse(data: data, offset: offset)
+	}
+	
 	func getFileLength() -> Int32 {
 		return header.fileLength.bigEndian
 	}

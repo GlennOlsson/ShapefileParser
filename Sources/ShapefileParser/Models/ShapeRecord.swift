@@ -32,6 +32,8 @@ protocol ShapeRecord: Hashable  {
 	
 	///Big endian, in 16bit words (2 byte, Half `Int`)
 	var recordLength: Int32 { get set }
+	
+	static func parse<Record: ShapeRecord>(data: NSData, offset: Int) -> Record
 }
 
 extension ShapeRecord {
