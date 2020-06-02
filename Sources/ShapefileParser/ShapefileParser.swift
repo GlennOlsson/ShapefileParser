@@ -40,70 +40,17 @@ class ShapefileParser {
 		return header
 	}
 	
-	private static func parseRecord(filedata: NSData, startByte: Int, length: Int32) {
-		var byteIndex = startByte.littleEndian
-		
-		var type: Int32 = 0
-		filedata.getBytes(&type, range: NSRange(location: byteIndex, length: 4))
-//		print("Type is MultiPath (31) ? \(String(type.littleEndian))")
-		byteIndex += 4
-		
-		var boxBuffer = [Double](repeating: 0, count: 4)
-		filedata.getBytes(&boxBuffer, range: NSRange(location: byteIndex, length: 4 * 8)) //4 doubles
-		byteIndex += 4 * 8
-		
-//		print(boxBuffer)
-		
-		var numParts: Int32 = 0
-		var numPoints: Int32 = 0
-		
-		filedata.getBytes(&numParts, range: NSRange(location: byteIndex, length: 4))
-		filedata.getBytes(&numPoints, range: NSRange(location: byteIndex + 4, length: 4))
-		byteIndex += 8
-		
-		
-		byteIndex += (16 * Int(numPoints)) + (2 * (4 * Int(numParts)))
-		var zMin: Double = 0
-		var zMax: Double = 0
-		filedata.getBytes(&zMin, range: NSRange(location: byteIndex, length: 8))
-		filedata.getBytes(&zMax, range: NSRange(location: byteIndex + 8, length: 8))
-		byteIndex += 16
-		
-		
-		for _ in 0..<Int(numPoints) {
-			var db: Double = 0
-			filedata.getBytes(&db, range: NSRange(location: byteIndex, length: 8))
-			print("Double: \(db)")
-			byteIndex += 8
-		}
-		
-		print("zMin, zMax: \((zMin, zMax)), numPoints: \(Int(numPoints)), numParts: \(Int(numParts))")
-		
-		var mMin: Double = 0
-		var mMax: Double = 0
-		filedata.getBytes(&mMin, range: NSRange(location: byteIndex, length: 8))
-		filedata.getBytes(&mMax, range: NSRange(location: byteIndex + 8, length: 8))
-		print("mMin, mMax: \((mMin, mMax)), numPoints: \(Int(numPoints)), numParts: \(Int(numParts))")
-		byteIndex += 16
-	}
-	
-	private static func parseRecords<Record: ShapeRecord>(shapefile: inout Shapefile<Record>, filedata: NSData) {
+	private static func parseRecords<Record: ShapeRecord>(shapefile: inout Shapefile<Record>, filedata: NSData) throws {
 		var byteIndex = 100 //First header after init header
 		//The amount of 16bit words (2 bytes). -100 because of header size
 		let upperBound = (shapefile.getFileLength() - 100) * 2
 		var counter = 0
 		while byteIndex < upperBound {
 			counter += 1
-			let recordHeaderRange = NSRange(location: byteIndex, length: 8) //Record header is 8 bytes
-			var recordHeaderBuffer = [Int32](repeating: 0, count: 2)
-			filedata.getBytes(&recordHeaderBuffer, range: recordHeaderRange)
+		
+			let record = try shapefile.parseRecord(data: filedata, offset: byteIndex) //+4 as first byte is type
 			
-			let recordNumber = recordHeaderBuffer[0].bigEndian
-			let recordLength = recordHeaderBuffer[1].bigEndian
-			
-			parseRecord(filedata: filedata, startByte: byteIndex + 8, length: recordLength) //+4 as first byte is type
-			
-			byteIndex += 8 + (2 * Int(recordLength)) //8 is size of header, 2 * 16 because 16 bit words = 2 bytes
+			byteIndex += 8 + (2 * Int(record.recordLength)) //8 is size of header, 2 * 16 because 16 bit words = 2 bytes
 		}
 		print("Count of records: \(counter)")
 	}
@@ -114,7 +61,7 @@ class ShapefileParser {
 		let header = try parseHeader(data: data)
 		if header.getShapeType() == .multiPatch {
 			var shapefile = Shapefile<MultiPatch>(header: header)
-			parseRecords(shapefile: &shapefile, filedata: data)
+			try parseRecords(shapefile: &shapefile, filedata: data)
 		} else {
 			print("Shapetype not supported: \(header.getShapeType())")
 		}

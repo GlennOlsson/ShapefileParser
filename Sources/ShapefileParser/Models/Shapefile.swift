@@ -85,8 +85,8 @@ class Shapefile<Record: ShapeRecord> {
 		self.records = []
 	}
 	
-	func parseRecord(data: NSData, offset: Int) -> Record {
-		return Record.parse(data: data, offset: offset)
+	func parseRecord(data: NSData, offset: Int) throws -> Record {
+		return try Record.parse(data: data, offset: offset, mIsActive: self.getBoundingM() != (0, 0))
 	}
 	
 	func getFileLength() -> Int32 {

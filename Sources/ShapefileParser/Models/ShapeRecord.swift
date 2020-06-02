@@ -28,12 +28,14 @@ class Point: Hashable {
 
 protocol ShapeRecord: Hashable  {
 	///Big endian, in 16bit words (2 byte, Half `Int`). Begins at 1
-	var recordNumber: Int32 { get set }
+	var recordNumber: Int32 { get }
 	
 	///Big endian, in 16bit words (2 byte, Half `Int`)
-	var recordLength: Int32 { get set }
+	var recordLength: Int32 { get }
 	
-	static func parse<Record: ShapeRecord>(data: NSData, offset: Int) -> Record
+	static var shapeType: Int32 { get }
+	
+	static func parse<Record: ShapeRecord>(data: NSData, offset: Int, mIsActive: Bool) throws -> Record
 }
 
 extension ShapeRecord {
